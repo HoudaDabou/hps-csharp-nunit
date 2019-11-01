@@ -27,8 +27,8 @@ steps:
 - script: gem install hiptest-publisher
 - script: hiptest-publisher -c nunit.conf --token=$(project_token) --test-run-id=$(test_run_id) --without=actionwords
   displayName: 'Install hiptest-publisher and fetch UIDs in each scenario included in your test run'
-- script: xbuild nunit.csproj
-- script: xbuild nunit.csproj /t:test
+- script: msbuild nunit.csproj
+- script: msbuild nunit.csproj /t:test
   displayName: 'Build the tests'
 - script: hiptest-publisher -c nunit.conf --token=$(project_token) -p "TestResult.xml" --test-run-id=$(test_run_id)
   displayName: 'Push the test results XML file to HipTest'
