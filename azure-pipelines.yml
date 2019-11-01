@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Set variables once
+variables:
+  project_token: 289810391285281025119860546090685303204383483362085539108
+  test_run_id: 317284
+
+
+steps:
+- task: UseRubyVersion@0
+  inputs:
+    versionSpec: '>= 2.6'
+
+- script: sudo apt-get update
+- script: sudo apt-get install -y openjfx
+- script: sudo apt-get install -y ruby-dev
+- script: sudo apt-get install zlib1g-dev
+- script: gem install hiptest-publisher
+- script: hiptest-publisher -c cucumber-java.conf --token=$(project_token) --test-run-id=$(test_run_id) --without=actionwords
+  displayName: 'Install hiptest-publisher and fetch UIDs in each scenario included in your test run'
+- script: xbuild nunit.csproj
+- script: xbuild nunit.csproj /t:test
+  displayName: 'Build the tests'
+- script: hiptest-publisher -c cucumber-java.conf --token=$(project_token) -p "TestResult.xml" --test-run-id=$(test_run_id)
+  displayName: 'Push the test results XML file to HipTest'
